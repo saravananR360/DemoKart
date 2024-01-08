@@ -26,9 +26,9 @@ const CategoriesPage = () => {
       </Button>
       <FlexBox mt="24px">
         {allProducts
-          .filter((x) => cartItems.includes(x.id))
-          .map((item) => (
-            <ProductContainer data={item} />
+          .filter((x) => cartItems.map((x) => x.id).includes(x.id))
+          .map((item, ind) => (
+            <ProductContainer key={ind} data={item} source="cart" />
           ))}
       </FlexBox>
     </FlexBox>

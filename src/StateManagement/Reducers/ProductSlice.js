@@ -9,6 +9,7 @@ export const productSlice = createSlice({
     singleProduct: {},
     user: [],
     allProducts: [],
+    productLoading: false,
   },
   reducers: {
     getCategories: (state) => {
@@ -18,7 +19,7 @@ export const productSlice = createSlice({
       state.categories = action.payload;
     },
     getProducts: (state) => {
-      return state;
+      state.productLoading = true;
     },
     storeProducts: (state, { payload }) => {
       const { data, type } = payload;
@@ -26,19 +27,24 @@ export const productSlice = createSlice({
       if (type === "all") {
         state.allProducts = data;
       }
+      state.productLoading = false;
     },
     storeCartItems: (state, action) => {
       if (action.payload.length !== 0) {
-        state.cart.push(action.payload);
+        let find = state.cart.map((x) => x.id).indexOf(action.payload.id);
+        if (find === -1) {
+          state.cart.push(action.payload);
+        }
       } else {
         state.cart = [];
       }
     },
     getSingleProduct: (state) => {
-      return state;
+      state.productLoading = true;
     },
     setSingleProduct: (state, action) => {
       state.singleProduct = action.payload;
+      state.productLoading = false;
     },
     addNewUser: (state) => {
       return state;

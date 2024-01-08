@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
@@ -8,23 +8,50 @@ import {
 import { Box, Button } from "@mui/material";
 import { FlexBox, Image, PaperBox, Para } from "../Home/styles";
 import CircularProgress from "@mui/joy/CircularProgress";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import { Input } from "./styles";
 
 const Products = () => {
   const Product = useSelector((state) => state.product.singleProduct);
   const dispatch = useDispatch();
   const params = useParams();
+  const [count, setCount] = useState(0);
+  const loading = useSelector((state) => state.product.productLoading);
+  const cartItems = useSelector((state) => state.product.cart);
 
-  const AddToCart = () => {
-    dispatch(storeCartItems(Product.id));
+  const addToCart = () => {
+    dispatch(storeCartItems({ id: Product.id, count }));
+  };
+
+  const handleInput = (e) => {
+    if (!isNaN(e.target.value)) setCount(Number(e.target.value));
+  };
+
+  const changeCount = (type) => {
+    if (type === "add") {
+      if (count + 1 >= 0 && count + 1 < 100) setCount(count + 1);
+    } else {
+      if (count - 1 >= 0 && count - 1 < 100) setCount(count - 1);
+    }
   };
 
   useEffect(() => {
-    if (params.pid) dispatch(getSingleProduct({ id: params.pid }));
+    if (params.pid) {
+      dispatch(getSingleProduct({ id: params.pid }));
+      setCount(
+        Number(
+          cartItems
+            .filter((x) => Number(x.id) === Number(params.pid))
+            .map((x) => x.count)
+        )
+      );
+    }
   }, []);
 
   return (
-    <FlexBox>
-      {Object.keys(Product).length > 0 ? (
+    <FlexBox alignItems="start ">
+      {!loading ? (
         <>
           <Box
             width="50%"
@@ -38,20 +65,35 @@ const Products = () => {
               />
             </PaperBox>
           </Box>
-          <FlexBox
-            width="50%"
-            textAlign="left"
-            justifyContent="flex-start"
-            alignItems="start"
-          >
-            <Para>{Product.title}</Para>
-            <FlexBox justifyContent="start">
-              <Para>&#36;&nbsp;{Product.price}</Para>
-              <Button variant="contained" onClick={() => AddToCart()}>
+          <FlexBox width="50%" textAlign="left" justifyContent="start" pt={2}>
+            <Para fw="600">{Product.title}</Para>
+            <FlexBox justifyContent="start" py={6}>
+              <Para width="25%">&#36;&nbsp;{Product.price}</Para>
+              <FlexBox
+                $round
+                sx={{ bgcolor: "lightgrey" }}
+                height="32px"
+                width="32px"
+                $hover
+              >
+                <RemoveIcon onClick={() => changeCount("minus")} />
+              </FlexBox>
+              <Input value={count} onChange={handleInput} maxLength={2} />
+
+              <FlexBox
+                $round
+                sx={{ bgcolor: "lightgrey", mr: 2 }}
+                height="32px"
+                width="32px"
+                $hover
+              >
+                <AddIcon onClick={() => changeCount("add")} />
+              </FlexBox>
+              <Button variant="contained" onClick={() => addToCart()}>
                 Add to cart
               </Button>
             </FlexBox>
-            <Para width="max-content" mr="24px">
+            <Para mr="24px" fw="600" mb="0 !important">
               Description :
             </Para>
             <Para>{Product.description}</Para>

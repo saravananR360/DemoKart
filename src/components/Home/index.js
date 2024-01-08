@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import ProductContainer from "./ProductContainer";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CircularProgress from "@mui/joy/CircularProgress";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const HomePage = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const Categories = useSelector((state) => state.product.categories);
   const Products = useSelector((state) => state.product.products);
+  const loading = useSelector((state) => state.product.productLoading);
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
@@ -69,9 +71,21 @@ const HomePage = () => {
         </FlexBox>
       </FlexBox>
       <FlexBox>
-        {Products.map((product) => (
-          <ProductContainer key={product.title} data={product} />
-        ))}
+        {!loading ? (
+          <>
+            {Products.map((product) => (
+              <ProductContainer
+                key={product.title}
+                data={product}
+                source="home"
+              />
+            ))}
+          </>
+        ) : (
+          <FlexBox height="400px">
+            <CircularProgress />
+          </FlexBox>
+        )}
       </FlexBox>
     </Container>
   );
